@@ -763,6 +763,30 @@ export default function DashboardPage() {
         }
 
         /* RESPONSIVE */
+
+        /* RESPONSIVE */
+.mobile-logout { display: none; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-card:nth-child(2) { border-right: none; }
+  .topbar { padding: 16px 20px; }
+  .content { padding: 20px; }
+  .stat-card { padding: 16px 20px; }
+  .mobile-logout {
+    display: block;
+    background: none;
+    border: 1px solid #1a1a1a;
+    color: #555;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mobile-logout:hover { border-color: #ff5f5f; color: #ff5f5f; }
+}
         @media (max-width: 900px) {
           .sidebar { display: none; }
           .stats { grid-template-columns: repeat(2, 1fr); }
@@ -858,6 +882,7 @@ export default function DashboardPage() {
                 <option value="all">All Priority</option>
                 {PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
               </select>
+              <button className="mobile-logout" onClick={logout}>Sign Out</button>
               <button className="create-btn" onClick={openCreate}>+ New Task</button>
             </div>
           </div>
