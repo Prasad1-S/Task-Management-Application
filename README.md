@@ -75,7 +75,7 @@
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Frontend | React, CSS-in-JS |
 | Backend | Next.js API Routes |
 | Database | PostgreSQL via Neon |
