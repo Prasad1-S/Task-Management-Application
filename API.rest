@@ -19,3 +19,7 @@ Content-Type: application/json
   "email": "emaiil@gmail.com",
   "password": "testpassword"
 }
+
+###
+GET https://congenial-waddle-5g4r7w9p54grh79qg-3000.app.github.dev/dashboard
+
