@@ -227,4 +227,4 @@
 
 ---
 
-*Submitted to: [Company Name]*
+*Submitted to: Myraid*
