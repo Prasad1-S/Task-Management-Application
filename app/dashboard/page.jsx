@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [filter, setFilter] = useState({ status: 'all', priority: 'all', search: '' });
-  const [form, setForm] = useState({ title: '', description: '', priority: 'medium', status: 'todo' });
+  const [form, setForm] = useState({ title: '', description: '', priority: 'medium', status: 'todo', due_date: '' });
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -48,14 +48,26 @@ export default function DashboardPage() {
 
   const openCreate = () => {
     setEditingTask(null);
-    setForm({ title: '', description: '', priority: 'medium', status: 'todo' });
+    setForm({ title: '', description: '', priority: 'medium', status: 'todo', due_date: '' });
     setModalOpen(true);
   };
 
   const openEdit = (task) => {
     setEditingTask(task);
-    setForm({ title: task.title, description: task.description || '', priority: task.priority, status: task.status });
+    setForm({ title: task.title, description: task.description || '', priority: task.priority, status: task.status, due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '' });
     setModalOpen(true);
+  };
+
+  const formatDueDate = (dateStr) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffDays = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+    const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffDays < 0) return { label: 'Overdue · ' + formatted, color: '#ff5f5f' };
+    if (diffDays === 0) return { label: 'Due today', color: '#f5c842' };
+    if (diffDays === 1) return { label: 'Due tomorrow', color: '#f5c842' };
+    return { label: 'Due ' + formatted, color: '#555' };
   };
 
   const handleSubmit = async (e) => {
@@ -272,7 +284,6 @@ export default function DashboardPage() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          max-width: 140px; 
         }
 
         .logout-btn {
@@ -915,6 +926,7 @@ export default function DashboardPage() {
                       <div className="task-meta">
                         <span className={`tag tag-priority-${task.priority}`}>{task.priority}</span>
                         <span className={`tag tag-status-${task.status}`}>{STATUS_LABELS[task.status]}</span>
+                        {task.due_date && (() => { const due = formatDueDate(task.due_date); return <span style={{ fontSize: '10px', color: due.color, letterSpacing: '0.06em' }}>◷ {due.label}</span>; })()}
                       </div>
                     </div>
                     <div className="task-actions">
@@ -976,6 +988,17 @@ export default function DashboardPage() {
                     {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                   </select>
                 </div>
+              </div>
+              <div className="field">
+                <label className="m-label">Due Date</label>
+                <input
+                  className="m-input"
+                  type="date"
+                  value={form.due_date}
+                  onChange={e => setForm({ ...form, due_date: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                  style={{ colorScheme: 'dark' }}
+                />
               </div>
               <div className="modal-btns">
                 <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
