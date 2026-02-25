@@ -1,75 +1,32 @@
-import { NextResponse } from "next/server";
-import { query } from "@/lib/db";
-import { getUserFromToken } from "@/lib/auth";
+// app/api/tasks/[id]/route.js
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
+import { query } from '@/lib/db';
 
-export async function PUT(req, context) {
-  try {
-    const user = await getUserFromToken();
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+export async function PUT(req, { params }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+  const user = verifyToken(token);
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-    const {id:taskId} = await context.params;
-    const { title, description, status, priority } = await req.json();
+  const { title, description, priority, status, due_date } = await req.json();
 
-    const existingTask = await query(
-      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
-      [taskId, user.id]
-    );
-
-    if (existingTask.rows.length === 0) {
-      return NextResponse.json(
-        { message: "Task not found or not yours" },
-        { status: 404 }
-      );
-    }
-
-    const updated = await query(
-      `UPDATE tasks
-       SET title = $1,
-           description = $2,
-           status = $3,
-           priority = $4
-       WHERE id = $5
-       RETURNING *`,
-      [title, description, status, priority, taskId]
-    );
-
-    return NextResponse.json(updated.rows[0]);
-
-  } catch (err) {
-    console.log(err);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
-  }
+  const result = await query(
+    `UPDATE tasks SET title=$1, description=$2, priority=$3, status=$4, due_date=$5
+     WHERE id=$6 AND user_id=$7 RETURNING *`,
+    [title, description, priority, status, due_date || null, params.id, user.id]
+  );
+  if (!result.rows[0]) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+  return NextResponse.json(result.rows[0]);
 }
 
-export async function DELETE(req, context) {
-  try {
-    const user = await getUserFromToken();
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+export async function DELETE(req, { params }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+  const user = verifyToken(token);
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-    const {id:taskId} = await context.params;
-
-    const existingTask = await query(
-      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
-      [taskId, user.id]
-    );
-
-    if (existingTask.rows.length === 0) {
-      return NextResponse.json(
-        { message: "Task not found or not yours" },
-        { status: 404 }
-      );
-    }
-
-    await query("DELETE FROM tasks WHERE id = $1", [taskId]);
-
-    return NextResponse.json({ message: "Task deleted" });
-
-  } catch (err) {
-    console.log(err);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
-  }
+  await query('DELETE FROM tasks WHERE id=$1 AND user_id=$2', [params.id, user.id]);
+  return NextResponse.json({ message: 'Deleted' });
 }
