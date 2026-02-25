@@ -3,17 +3,39 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
 
-export async function GET() {
+export async function GET(req) {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   const user = verifyToken(token);
   if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-  const result = await query(
-    'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
-    [user.id]
-  );
-  return NextResponse.json(result.rows);
+  // pagination params
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get('page')) || 1;
+  const limit = parseInt(searchParams.get('limit')) || 10;
+  const offset = (page - 1) * limit;
+
+  const [tasksResult, countResult] = await Promise.all([
+    query(
+      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      [user.id, limit, offset]
+    ),
+    query('SELECT COUNT(*) FROM tasks WHERE user_id = $1', [user.id]),
+  ]);
+
+  const total = parseInt(countResult.rows[0].count);
+
+  return NextResponse.json({
+    tasks: tasksResult.rows,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNext: page < Math.ceil(total / limit),
+      hasPrev: page > 1,
+    }
+  });
 }
 
 export async function POST(req) {
