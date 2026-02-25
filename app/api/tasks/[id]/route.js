@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { encrypt, decrypt } from '@/lib/encrypt';
 
 export async function PUT(req, { params }) {
   const { id } = await params;
@@ -14,10 +15,11 @@ export async function PUT(req, { params }) {
   const { title, description, priority, status, due_date } = await req.json();
 
   const result = await query(
-    `UPDATE tasks SET title=$1, description=$2, priority=$3, status=$4, due_date=$5
-     WHERE id=$6 AND user_id=$7 RETURNING *`,
-    [title, description, priority, status, due_date || null, id, user.id] // ← params.id → id
-  );
+  `UPDATE tasks SET title=$1, description=$2, priority=$3, status=$4, due_date=$5
+   WHERE id=$6 AND user_id=$7 RETURNING *`,
+  [title, encrypt(description), priority, status, due_date || null, id, user.id]
+);
+
   if (!result.rows[0]) return NextResponse.json({ message: 'Not found' }, { status: 404 });
   return NextResponse.json(result.rows[0]);
 }
