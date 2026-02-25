@@ -272,6 +272,7 @@ export default function DashboardPage() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 140px; 
         }
 
         .logout-btn {
