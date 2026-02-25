@@ -15,7 +15,7 @@ export async function POST(req) {
     );
   }
 
-export async function POST(req) {
+  // ← no second "export async function POST" here, just continue with try/catch
   try {
     const { name, email, password } = await req.json();
 
@@ -25,12 +25,12 @@ export async function POST(req) {
         { status: 400 }
       );
     }
-     console.log("ok")
+
     const existingUser = await query(
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
-    console.log("ok")
+
     if (existingUser.rows.length > 0) {
       return NextResponse.json(
         { message: "User already exists" },
@@ -38,24 +38,24 @@ export async function POST(req) {
       );
     }
 
-    console.log("ok")
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("ok")
+
     const result = await query(
       "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
       [name, email, hashedPassword]
     );
 
     const { password: _, ...safeUser } = result.rows[0];
-    
+
     return NextResponse.json({
       message: "User created successfully",
       user: safeUser,
     });
 
   } catch (error) {
+    console.error("Register error:", error);
     return NextResponse.json(
-      { message: "Server error", error },
+      { message: "Server error" },
       { status: 500 }
     );
   }
