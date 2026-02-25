@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { encrypt, decrypt } from '@/lib/encrypt';
+
 
 export async function GET(req) {
   const cookieStore = await cookies();
@@ -48,9 +50,10 @@ export async function POST(req) {
   if (!title) return NextResponse.json({ message: 'Title required' }, { status: 400 });
 
   const result = await query(
-    `INSERT INTO tasks (user_id, title, description, priority, status, due_date)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [user.id, title, description, priority || 'medium', status || 'todo', due_date || null]
-  );
+  `INSERT INTO tasks (user_id, title, description, priority, status, due_date)
+   VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+  [user.id, title, encrypt(description), priority || 'medium', status || 'todo', due_date || null]
+);
+
   return NextResponse.json(result.rows[0], { status: 201 });
 }
