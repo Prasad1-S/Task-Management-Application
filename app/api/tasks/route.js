@@ -27,8 +27,14 @@ export async function GET(req) {
 
   const total = parseInt(countResult.rows[0].count);
 
+  // decrypt descriptions before returning
+const tasks = tasksResult.rows.map(task => ({
+  ...task,
+  description: task.description ? decrypt(task.description) : task.description,
+}));
+
   return NextResponse.json({
-    tasks: tasksResult.rows,
+    tasks,
     pagination: {
       total,
       page,
