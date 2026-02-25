@@ -5,6 +5,7 @@ import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
 
 export async function PUT(req, { params }) {
+  const { id } = await params; 
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   const user = verifyToken(token);
@@ -22,6 +23,7 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   const user = verifyToken(token);
