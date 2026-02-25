@@ -60,6 +60,7 @@
 
 - **Authentication** — Register, login, and logout with JWT stored in HTTP-only cookies
 - **Task CRUD** — Create, read, update, and delete tasks
+- **Pagination** — Task listing API supports page and limit query parameters
 - **Priority Levels** — Low, Medium, High with colour-coded indicators
 - **Task Status** — To Do, In Progress, Done with one-click cycling
 - **Due Dates** — Set due dates with smart labels: Due today, Due tomorrow, Overdue
@@ -105,6 +106,7 @@
 ├── lib/
 │   ├── auth.js
 │   ├── db.js
+│   ├── encrypt.js
 │   └── rateLimit.js
 ├── proxy.js
 ├── screenshots/
@@ -206,6 +208,7 @@
 - **Secure cookie flag** enabled automatically in production
 - Route protection via **Next.js middleware**
 - Parameterized SQL queries to prevent **SQL injection**
+- **AES-256-CBC encryption** on task descriptions at rest in the database
 
 ---
 
@@ -215,6 +218,7 @@
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `JWT_SECRET` | Secret key for signing JWT tokens |
+| `ENCRYPTION_KEY` | 32-character AES-256 encryption key |
 
 ---
 
