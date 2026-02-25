@@ -2,8 +2,20 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { query } from "@/lib/db";
 import { generateToken } from "@/lib/auth";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req) {
+  // Rate limit: 5 attempts per minute per IP
+  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown';
+  const limit = rateLimit(ip, 5, 60_000);
+
+  if (!limit.success) {
+    return NextResponse.json(
+      { message: `Too many login attempts. Try again in ${Math.ceil(limit.resetIn / 1000)}s.` },
+      { status: 429 }
+    );
+  }
+
   try {
     const { email, password } = await req.json();
 
@@ -48,7 +60,7 @@ export async function POST(req) {
 
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: false, // change to true in production
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
@@ -57,8 +69,9 @@ export async function POST(req) {
     return response;
 
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json(
-      { message: "Server error", error },
+      { message: "Server error" },
       { status: 500 }
     );
   }
