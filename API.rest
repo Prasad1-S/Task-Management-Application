@@ -1,0 +1,21 @@
+GET https://congenial-waddle-5g4r7w9p54grh79qg-3000.app.github.dev/
+
+###
+
+POST https://congenial-waddle-5g4r7w9p54grh79qg-3000.app.github.dev/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "user",
+  "email": "emaiil@gmail.com",
+  "password": "testpassword"
+}
+
+###
+POST https://congenial-waddle-5g4r7w9p54grh79qg-3000.app.github.dev/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "emaiil@gmail.com",
+  "password": "testpassword"
+}
