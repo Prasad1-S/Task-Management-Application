@@ -447,6 +447,34 @@ export default function HomePage() {
         <Link href="/register" className="btn-primary">Create Account →</Link>
       </section>
 
+      {/* SUBMISSION BANNER */}
+<div style={{
+  position: 'fixed',
+  bottom: '24px',
+  right: '24px',
+  zIndex: 1000,
+  border: '1px solid #222',
+  background: '#111',
+  padding: '16px 24px',
+  textAlign: 'center',
+}}>
+  <div style={{
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: '2px',
+    background: 'linear-gradient(90deg, transparent, #f5c842, transparent)',
+  }} />
+  <div style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#444', marginBottom: '6px' }}>
+    24-Hour Technical Assessment
+  </div>
+  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '15px', fontWeight: '700', color: '#fff', marginBottom: '2px' }}>
+    Subhojeet Prasad
+  </div>
+  <div style={{ fontSize: '11px', color: '#555' }}>
+    Next.js · PostgreSQL · JWT
+  </div>
+</div>
+
       <footer className="footer">
         <div className="footer-copy">© {new Date().getFullYear()} TaskFlow. All rights reserved.</div>
         <div className="footer-copy">Built with Next.js</div>
